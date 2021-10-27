@@ -1,3 +1,6 @@
+//Running home.html and favorite.html via port
+//Ex: http://localhost:8080/home.html will run home.html
+
 const express = require('express');
 const bodyParser = require('body-parser');
 
@@ -108,6 +111,7 @@ router.post("/db/:date/:imgUrl/:isFavorite", function(req, res) {
 })
 
 
+//Used to locally run home and favorite
 app.use(express.static('../client'));
 
 app.use('/api', router); // API Root url at: http://localhost:8080/api
