@@ -4,8 +4,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const mongoose = require('mongoose')
-const url = 'mongodb://127.0.0.1:27017/database-tutorial' // change this as needed
+const mongoose = require('mongoose');
+const { response } = require('express');
+const url = 'mongodb://127.0.0.1:27017/node-mongo-hw' // change this as needed
 
 mongoose.connect(url, { useNewUrlParser: true })
 
@@ -41,11 +42,45 @@ router.get('/', function(req, res) {
     res.json({ message: 'Welcome to the APOD app.' });   
 });
 
-router.delete("/db/reset", (req,res) => {
-  NASA.deleteMany({});
-})
+router.get("/favorite", function (req, res) {
+  NASA.find({isFavorite: "True"}, (err, data) => {
+    if(err){
+      console.log(err);
+      return
+    }
+    res.json(data);
+  })
+});
 
-router.put("/db/put/:date/:isFavorite", (req, res) => {
+router.post("/add", function (req, res) {
+  const nasa = NASA({
+    imgUrl: req.body.imgUrl,
+    date: req.body.date,
+    isFavorite: req.body.isFavorite
+  });
+  nasa.save((error, document) => {
+    res.json({
+      status:"success",
+      id: nasa._id,
+      imgUrl: req.body.imgUrl,
+      date: req.body.date,
+      isFavorite: req.body.isFavorite
+    })
+  })
+});
+
+router.delete("/delete", function (req, res) {
+  NASA.deleteOne({date : req.body.date})
+    .then((response) => response.json)
+    .then((data) => console.log(data));
+});
+
+
+// router.delete("/db/reset", (req,res) => {
+//   NASA.deleteMany({});
+// })
+
+router.put("/put/:date/:isFavorite", (req, res) => {
   NASA.findOne({ 
     date: req.params.date
   }, (err, data) => {
@@ -64,28 +99,28 @@ router.put("/db/put/:date/:isFavorite", (req, res) => {
   })
 }) 
 
-router.delete("/db/delete/:id", (req, res) => {
-  NASA.findByIdAndDelete(req.params.id, (error, todo) => {
-    if (error) {
-      res.json({ status: "failure"})
-    } else {
-      res.json(todo)
-    }
-  })
-})
+// router.delete("/db/delete/:id", (req, res) => {
+//   NASA.findByIdAndDelete(req.params.id, (error, todo) => {
+//     if (error) {
+//       res.json({ status: "failure"})
+//     } else {
+//       res.json(todo)
+//     }
+//   })
+// })
 
 
 
 
-router.get("/db/favorites", (req, res) => {
-  NASA.find({isFavorite: "True"}, (err, data) => {
-    if(err){
-      console.log(err);
-      return
-    }
-    res.json(data);
-  })
-})
+// router.get("/db/favorites", (req, res) => {
+//   NASA.find({isFavorite: "True"}, (err, data) => {
+//     if(err){
+//       console.log(err);
+//       return
+//     }
+//     res.json(data);
+//   })
+// })
 
 router.get("/db/all", (req, res) => {
   NASA.find().then((nasa) => {
@@ -93,22 +128,22 @@ router.get("/db/all", (req, res) => {
   })
 });
 
-router.post("/db/:date/:imgUrl/:isFavorite", function(req, res) {
-    const nasa = NASA({
-      imgUrl: req.params.imgUrl,
-      date: req.params.date,
-      isFavorite: req.params.isFavorite
-    })
-    nasa.save((error, document) => {
-      res.json({
-        status:"success",
-        id: nasa._id,
-        imgUrl: req.params.imgUrl,
-        date: req.params.date,
-        isFavorite: req.params.isFavorite
-      })
-    })
-})
+// router.post("/db/:date/:imgUrl/:isFavorite", function(req, res) {
+//     const nasa = NASA({
+//       imgUrl: req.params.imgUrl,
+//       date: req.params.date,
+//       isFavorite: req.params.isFavorite
+//     })
+//     nasa.save((error, document) => {
+//       res.json({
+//         status:"success",
+//         id: nasa._id,
+//         imgUrl: req.params.imgUrl,
+//         date: req.params.date,
+//         isFavorite: req.params.isFavorite
+//       })
+//     })
+// })
 
 
 //Used to locally run home and favorite
